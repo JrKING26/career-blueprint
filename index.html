@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Blueprint</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0B2540; color: #EAF3FB;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-bottom: 48px;
+  }
+  .mono { font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+  .grid-bg {
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 24px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 24px);
+    padding: 28px 20px 20px;
+  }
+  .eyebrow { font-size: 11px; letter-spacing: 1px; color: #5A7A96; }
+  h1 { font-size: 26px; margin: 6px 0 2px; font-weight: 600; }
+  .sub { font-size: 13px; color: #9FB8CE; margin-bottom: 18px; }
+  .corner-tick { position: relative; border: 1px solid #3E6690; }
+  .corner-tick::before, .corner-tick::after {
+    content: ""; position: absolute; width: 10px; height: 10px; border-color: inherit;
+  }
+  .corner-tick::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+  .corner-tick::after { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+  .level-panel { background: #123255; padding: 14px 16px; margin-bottom: 8px; }
+  .level-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .level-title { font-size: 14px; font-weight: 600; }
+  .xp-total { font-size: 12px; color: #D9A24B; }
+  .xp-bar-track { height: 6px; background: #0B2540; margin-top: 8px; }
+  .xp-bar-fill { height: 100%; background: #D9A24B; transition: width 0.3s ease; }
+  .tabs { display: flex; border-bottom: 1px solid #1E4568; padding: 0 20px; }
+  .tab {
+    flex: 1; background: none; border: none; cursor: pointer;
+    padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    border-bottom: 2px solid transparent; color: #5A7A96; font-size: 11px;
+  }
+  .tab svg { display: block; }
+  .tab.active { color: #EAF3FB; }
+  .content { padding: 16px 20px; }
+  .track-tagline { font-size: 13px; color: #9FB8CE; margin-bottom: 4px; }
+  .track-xp { font-size: 12px; margin-bottom: 16px; }
+  .week-card { margin-bottom: 10px; }
+  .week-header {
+    width: 100%; background: #123255; border: none; cursor: pointer;
+    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+    color: #EAF3FB; text-align: left; font: inherit;
+  }
+  .week-header-left { display: flex; align-items: center; gap: 10px; }
+  .week-num { font-size: 11px; color: #5A7A96; }
+  .week-title { font-size: 14px; }
+  .week-header-right { display: flex; align-items: center; gap: 8px; }
+  .week-count { font-size: 11px; color: #5A7A96; }
+  .chevron { transition: transform 0.15s ease; }
+  .chevron.open { transform: rotate(180deg); }
+  .week-body { background: #0F2A43; padding: 6px 14px 12px; animation: unfold 0.18s ease; }
+  @keyframes unfold { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .task-row {
+    display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; cursor: pointer;
+    border-bottom: 1px solid #1E4568;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .checkbox {
+    width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+    border: 1.5px solid #5A7A96; display: flex; align-items: center; justify-content: center;
+  }
+  .checkbox.done { background: var(--accent); border-color: var(--accent); }
+  .task-text { font-size: 13.5px; line-height: 1.4; }
+  .task-text.done { color: #9FB8CE; }
+  .reset-btn {
+    margin-top: 20px; background: none; border: 1px solid #2C5479; color: #5A7A96;
+    padding: 8px 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const TRACKS = [
+  {
+    id: "architect", name: "Architect", accent: "#6FA8DC",
+    tagline: "Java → Microservices → Cloud → System Design → AI",
+    icon: '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/><path d="m14.31 8-2.76 7.36L8.79 16l2.76-7.36 2.76-.64Z"/>',
+    weeks: [
+      { title: "Java refresh + OOP drills", tasks: ["Rebuild core OOP concepts (inheritance, interfaces, generics)", "Solve 5 data-structure problems in Java", "Set up a clean local dev environment"] },
+      { title: "First REST API", tasks: ["Scaffold a Spring Boot service", "Build 3 CRUD endpoints", "Write a README explaining the design"] },
+      { title: "Persistence layer", tasks: ["Wire up a database with JPA/Hibernate", "Add validation + error handling", "Write 5 unit tests for the service layer"] },
+      { title: "Testing + CI basics", tasks: ["Add integration tests", "Set up a CI pipeline (GitHub Actions)", "Get a green build badge on the repo"] },
+      { title: "Containerize it", tasks: ["Write a Dockerfile for the service", "Run it locally in a container", "Document the run steps"] },
+      { title: "Ship to the cloud", tasks: ["Deploy the container to a free-tier cloud host", "Point a domain or public URL at it", "Note deployment steps for future you"] },
+      { title: "Split into microservices", tasks: ["Break the monolith into 2 services", "Define the boundary and contract between them", "Draw a simple architecture diagram"] },
+      { title: "Service communication", tasks: ["Connect the services via REST or a message queue", "Handle one failure case gracefully", "Load-test with a basic script"] },
+      { title: "System design reps", tasks: ["Study 2 system design case studies", "Sketch your own design for a familiar app", "Get feedback from a peer or forum"] },
+      { title: "First AI integration", tasks: ["Call an LLM API from one of your services", "Add a simple prompt + response flow", "Log and review 10 real outputs"] },
+      { title: "Observability pass", tasks: ["Add structured logging", "Add basic metrics or tracing", "Simulate and catch one failure via logs"] },
+      { title: "Capstone assembly", tasks: ["Combine the pieces into one AI-integrated microservice project", "Write a one-page architecture doc", "Record a 2-minute walkthrough"] },
+    ],
+  },
+  {
+    id: "builder", name: "Builder", accent: "#86B39B",
+    tagline: "GitHub + LinkedIn as your public track record",
+    icon: '<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+    weeks: [
+      { title: "Foundation", tasks: ["Write a GitHub profile README", "Create the portfolio repo skeleton", "Pin your top 3 repos"] },
+      { title: "Document as you go", tasks: ["Write up week 1-2 of the Architect Path as a short post", "Add screenshots or a diagram", "Publish it in the repo or a blog"] },
+      { title: "First public post", tasks: ["Write a LinkedIn post about your learning journey", "Tag it with relevant skills", "Reply to every comment you get"] },
+      { title: "First versioned release", tasks: ["Tag a v0.1 release on a project", "Write real release notes", "Share the release link"] },
+      { title: "Open source, round 1", tasks: ["Find a 'good first issue' in a project you use", "Open a PR, even a small one", "Ask for review if it stalls"] },
+      { title: "Diagram the work", tasks: ["Draw a clean diagram of your microservices setup", "Add it to the repo README", "Explain it in plain language"] },
+      { title: "Second public post", tasks: ["Post about what you learned building microservices", "Mention one mistake and what it taught you", "Connect with 5 people in the field"] },
+      { title: "Open source, round 2", tasks: ["Make a second contribution, slightly bigger", "Respond to any maintainer feedback", "Note what you'd do differently"] },
+      { title: "Second release", tasks: ["Tag v0.2 with a real changelog", "Fix one thing a user or reviewer flagged", "Update the README to match"] },
+      { title: "Case study", tasks: ["Write up the AI-integration project as a case study", "Include the problem, approach, and result", "Publish and share it"] },
+      { title: "Third public post + outreach", tasks: ["Post a short recap of the last month", "Message 5 people whose work you admire", "Ask one for a quick chat"] },
+      { title: "Portfolio polish", tasks: ["Review all pinned repos for clarity", "Rewrite any weak README", "Ask one person for honest feedback"] },
+    ],
+  },
+  {
+    id: "hustler", name: "Hustler", accent: "#C97B5B",
+    tagline: "Free → testimonials → paid web/automation work",
+    icon: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+    weeks: [
+      { title: "Define the offer", tasks: ["List 3 concrete free/low-cost services you can deliver", "Write one clear sentence for each", "Decide who they're for"] },
+      { title: "First outreach", tasks: ["Message 5 people who might want a free service", "Explain what's in it for them", "Book at least 1 taker"] },
+      { title: "First delivery", tasks: ["Deliver the first free service", "Ask directly for a written testimonial", "Save it somewhere you'll actually use it"] },
+      { title: "Portfolio piece", tasks: ["Turn one delivery into a small automation script", "Clean it up enough to show", "Add it to your builder repo"] },
+      { title: "Get visible", tasks: ["Post the service on one platform or channel", "Write a short, specific pitch", "Track any replies"] },
+      { title: "Second delivery", tasks: ["Deliver a second free or low-cost gig", "Ask for a testimonial again", "Note what took longer than expected"] },
+      { title: "Package the proof", tasks: ["Combine testimonials into a one-pager", "Add 1-2 before/after specifics", "Share it with 3 new prospects"] },
+      { title: "First paid pitch", tasks: ["Set an initial rate, even a modest one", "Pitch it to 1 warm contact", "Handle the 'why should I pay' question"] },
+      { title: "First paid delivery", tasks: ["Deliver the first paid gig", "Ask what would make it a 5-star experience", "Invoice cleanly, however small"] },
+      { title: "Ask for more", tasks: ["Ask the paid client for a referral", "Ask if there's repeat or follow-on work", "Note the answer either way"] },
+      { title: "Refine the offer", tasks: ["Adjust scope or price based on real feedback", "Cut whatever wasted time last round", "Write the offer down in its new form"] },
+      { title: "Review & decide", tasks: ["Tally hours vs. pay across the month", "Decide: raise rates, hold steady, or pause", "Write one sentence on what you'd change"] },
+    ],
+  },
+];
+
+const LEVEL_TITLES = ["Apprentice Drafter","Junior Drafter","Drafter","Senior Drafter","Journeyman Architect","Systems Architect","Principal Architect","Chief Architect"];
+const XP_PER_TASK = 10;
+const STORAGE_KEY = "career-blueprint-progress";
+
+let progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+let activeTrack = "architect";
+let openWeeks = {};
+
+function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+
+function trackXp(track) {
+  let xp = 0;
+  track.weeks.forEach((w, wi) => w.tasks.forEach((_, ti) => { if (progress[track.id+"-w"+wi+"-t"+ti]) xp += XP_PER_TASK; }));
+  return xp;
+}
+function levelFromXp(xp) {
+  const idx = Math.min(LEVEL_TITLES.length - 1, Math.floor(xp / 120));
+  return { title: LEVEL_TITLES[idx], into: xp % 120, span: 120 };
+}
+function icon(svgInner, color, size) {
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+svgInner+'</svg>';
+}
+
+function render() {
+  const totalXp = TRACKS.reduce((s, t) => s + trackXp(t), 0);
+  const overall = levelFromXp(totalXp);
+  const track = TRACKS.find(t => t.id === activeTrack);
+  const tXp = trackXp(track);
+
+  let tabsHtml = TRACKS.map(t => {
+    const active = t.id === activeTrack;
+    return '<button class="tab'+(active?' active':'')+'" style="border-bottom-color:'+(active?t.accent:'transparent')+'" onclick="setTrack(\''+t.id+'\')">'
+      + icon(t.icon, active ? t.accent : '#5A7A96', 18) + '<span>'+t.name+'</span></button>';
+  }).join("");
+
+  let weeksHtml = track.weeks.map((week, wi) => {
+    const taskIds = week.tasks.map((_, ti) => track.id+"-w"+wi+"-t"+ti);
+    const doneCount = taskIds.filter(id => progress[id]).length;
+    const isOpen = !!openWeeks[track.id+"-"+wi];
+    const isComplete = doneCount === week.tasks.length;
+    let tasksHtml = week.tasks.map((task, ti) => {
+      const id = track.id+"-w"+wi+"-t"+ti;
+      const done = !!progress[id];
+      return '<div class="task-row" onclick="toggleTask(\''+id+'\')">'
+        + '<div class="checkbox'+(done?' done':'')+'" style="--accent:'+track.accent+'">'+(done ? icon('<polyline points="20 6 9 17 4 12"/>', '#0B2540', 13) : '')+'</div>'
+        + '<span class="task-text'+(done?' done':'')+'">'+task+'</span></div>';
+    }).join("");
+    return '<div class="week-card corner-tick" style="border-color:'+(isComplete?track.accent:'#2C5479')+'">'
+      + '<button class="week-header" onclick="toggleWeek(\''+track.id+'-'+wi+'\')">'
+      + '<div class="week-header-left"><span class="week-num mono">W'+(wi+1)+'</span>'
+      + '<span class="week-title" style="font-weight:'+(isComplete?600:400)+';color:'+(isComplete?track.accent:'#EAF3FB')+'">'+week.title+'</span></div>'
+      + '<div class="week-header-right"><span class="week-count mono">'+doneCount+'/'+week.tasks.length+'</span>'
+      + icon('<polyline points="6 9 12 15 18 9"/>', '#5A7A96', 16).replace('<svg ', '<svg class="chevron'+(isOpen?' open':'')+'" ')
+      + '</div></button>'
+      + (isOpen ? '<div class="week-body">'+tasksHtml+'</div>' : '')
+      + '</div>';
+  }).join("");
+
+  document.getElementById("app").innerHTML =
+    '<div class="grid-bg">'
+    + '<div class="eyebrow mono">SHEET 01 — CAREER BLUEPRINT</div>'
+    + '<h1>Build the Architect</h1>'
+    + '<div class="sub">Three tracks, twelve weeks, one direction.</div>'
+    + '<div class="corner-tick level-panel" style="border-color:#3E6690">'
+    + '<div class="level-row"><div class="level-title">'+overall.title+'</div><div class="xp-total mono">'+totalXp+' XP</div></div>'
+    + '<div class="xp-bar-track"><div class="xp-bar-fill" style="width:'+(overall.into/overall.span*100)+'%"></div></div>'
+    + '</div></div>'
+    + '<div class="tabs">'+tabsHtml+'</div>'
+    + '<div class="content">'
+    + '<div class="track-tagline">'+track.tagline+'</div>'
+    + '<div class="track-xp mono" style="color:'+track.accent+'">'+tXp+' XP earned on this path</div>'
+    + weeksHtml
+    + '<button class="reset-btn" onclick="resetAll()">'+icon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>', '#5A7A96', 13)+' Reset this blueprint</button>'
+    + '</div>';
+}
+
+function setTrack(id) { activeTrack = id; render(); }
+function toggleWeek(key) { openWeeks[key] = !openWeeks[key]; render(); }
+function toggleTask(id) { progress[id] = !progress[id]; persist(); render(); }
+function resetAll() { if (confirm("Reset all progress?")) { progress = {}; persist(); render(); } }
+
+render();
+</script>
+</body>
+</html>
